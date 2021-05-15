@@ -14,7 +14,7 @@ from models import CMLA, HAST, OTE
 class Instructor:
     def __init__(self, opt):
         self.opt = opt
-        
+        # test
         if opt.v2:
             absa_data_reader = ABSADataReaderV2(data_dir=opt.data_dir)
         else:
