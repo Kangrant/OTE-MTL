@@ -107,7 +107,7 @@ class Instructor:
 
         with torch.no_grad():
             for t_batch, t_sample_batched in enumerate(data_loader):
-                t_inputs = [t_sample_batched[col].to(self.opt.device) for col in self.opt.input_cols]
+                t_inputs = [t_sample_batched[col].to(self.opt.device) for col in self.opt.input_cols]#[['text_indices', 'text_mask']]
                 t_ap_spans, t_op_spans, t_triplets = [t_sample_batched[col] for col in self.opt.eval_cols]
                 t_ap_spans_pred, t_op_spans_pred, t_triplets_pred = self.model.inference(t_inputs)
 
@@ -163,6 +163,7 @@ class Instructor:
         test_ap_precision_avg = 0
         test_ap_recall_avg = 0
         test_ap_f1_avg = 0
+
 
         test_op_precision_avg = 0
         test_op_recall_avg = 0
