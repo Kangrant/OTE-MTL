@@ -143,7 +143,7 @@ class Instructor:
             TP += n_hit
             FP += (n_output - n_hit)
             FN += (n_target - n_hit)
-        precision = float(TP) / float(TP + FP + 1e-5)
+        precision = float(TP) / float(TP + FP + 1e-5) # 1e-5 means that maybe assure !=0
         recall = float(TP) / float(TP + FN + 1e-5)
         f1 = 2 * precision * recall / (precision + recall + 1e-5)
         return [precision, recall, f1]

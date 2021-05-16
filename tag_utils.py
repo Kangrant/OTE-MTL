@@ -30,18 +30,21 @@ def bio2bieos(tags):
                tags[i + 1][0] == 'I':
                 new_tags.append(tag)
             else:
-                new_tags.append(tag.replace('B', 'S'))
+                new_tags.append(tag.replace('B', 'S'))# B的下一个不是I，则B改为S
         elif tag[0] == 'I':
             if i + 1 < len(tags) and \
                     tags[i + 1][0] == 'I':
                 new_tags.append(tag)
             else:
-                new_tags.append(tag.replace('I', 'E'))
+                new_tags.append(tag.replace('I', 'E')) #I的下一个不是I，I改为E
         else:
             raise Exception('Invalid IOB format!')
     return new_tags
 
 def bieos2span(tags, tp='-AP'): # tp = '', '-AP', or '-OP'
+    """
+    记录非O标签的区间
+    """
     spans = []
     beg, end = -1, -1
     for i, tag in enumerate(tags):

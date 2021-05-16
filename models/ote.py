@@ -104,7 +104,7 @@ class OTE(nn.Module):
         ap_node, ap_rep = torch.chunk(ap_rep, 2, dim=2)
         op_node, op_rep = torch.chunk(op_rep, 2, dim=2)
 
-        ap_out = self.ap_tag_fc(ap_rep)
+        ap_out = self.ap_tag_fc(ap_rep)#[batch，max_seq_len,tag_size]
         op_out = self.op_tag_fc(op_rep)
 
         triplet_out = self.triplet_biaffine(ap_node, op_node)
@@ -114,7 +114,7 @@ class OTE(nn.Module):
         op_tags = [[] for _ in range(batch_size)]
         for b in range(batch_size):
             for i in range(text_len[b]):
-                ap_tags[b].append(ap_out[b, i, :].argmax(0).item())
+                ap_tags[b].append(ap_out[b, i, :].argmax(0).item())#选择每个word中概率最大的标签
         for b in range(batch_size):
             for i in range(text_len[b]):
                 op_tags[b].append(op_out[b, i, :].argmax(0).item())
@@ -122,11 +122,12 @@ class OTE(nn.Module):
         text_indices = text_indices.cpu().numpy().tolist()
         ap_spans = self.aspect_decode(text_indices, ap_tags, self.idx2tag)
         op_spans = self.opinion_decode(text_indices, op_tags, self.idx2tag)
-        mat_mask = (text_mask.unsqueeze(2)*text_mask.unsqueeze(1)).unsqueeze(3).expand(
+        mat_mask = (text_mask.unsqueeze(2)*text_mask.unsqueeze(1)).unsqueeze(3).expand( #[batch,seq_len,seq_len,polarity_dim]
                               -1, -1, -1, self.opt.polarities_dim)  # batch x seq x seq x polarity
-        triplet_indices = torch.zeros_like(triplet_out).to(self.opt.device)
+        triplet_indices = torch.zeros_like(triplet_out).to(self.opt.device)#[batch,seq_len,seq_len,polarity_dim]
+        #scatter_(dim,index,src)
         triplet_indices = triplet_indices.scatter_(3, triplet_out.argmax(dim=3, keepdim=True), 1) * mat_mask.float()
-        triplet_indices = torch.nonzero(triplet_indices).cpu().numpy().tolist()
+        triplet_indices = torch.nonzero(triplet_indices).cpu().numpy().tolist()#非零元素的索引 List<List>
         triplets = self.sentiment_decode(text_indices, ap_tags, op_tags, triplet_indices, self.idx2tag, self.idx2polarity)
         
         return [ap_spans, op_spans, triplets]
@@ -158,7 +159,7 @@ class OTE(nn.Module):
         result = [[] for _ in range(batch_size)]
         for i in range(len(triplet_indices)):
             b, ap_i, op_i, po = triplet_indices[i]
-            if po == 0:
+            if po == 0:# 0:表示无情感
                 continue
             _ap_tags = list(map(lambda x: idx2tag[x], ap_tags[b]))
             _op_tags = list(map(lambda x: idx2tag[x], op_tags[b]))
