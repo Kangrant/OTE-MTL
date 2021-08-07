@@ -48,7 +48,7 @@ class BucketIterator(object):
             batch_ap_spans.append(ap_spans)
             batch_op_spans.append(op_spans)
             batch_triplets.append(triplets)
-        return { 
+        return { #输入数据
                 'text_indices': torch.tensor(batch_text_indices), 
                 'text_mask': torch.tensor(batch_text_mask, dtype=torch.bool),
                 'ap_indices': torch.tensor(batch_ap_indices), #带ap标签的序列
